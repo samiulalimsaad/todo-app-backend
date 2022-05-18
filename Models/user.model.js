@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 const { model, Schema } = mongoose;
-const todoSchema = new Schema(
+const userSchema = new Schema(
     {
-        name: Boolean,
-        email: Boolean,
-        password: Boolean,
+        name: String,
+        email: String,
+        password: String,
     },
     { timestamps: true }
 );
 
-export const Todo = model("todo", todoSchema);
+export const User = model("user", userSchema);
