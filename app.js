@@ -85,10 +85,11 @@ app.delete("/:id", verifyUser, async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const user = await User.findBy({ email: req.body.email });
+        const user = (await User.find({ email: req.body.email }))[0];
+        console.log(user);
         if (
-            user.email === req.body.email &&
-            user.password === req.body.password
+            user.email == req.body.email &&
+            user.password == req.body.password
         ) {
             const tempUser = {
                 name: user.name,
