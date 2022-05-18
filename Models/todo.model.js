@@ -5,9 +5,7 @@ const todoSchema = new Schema(
         title: String,
         description: String,
         done: Boolean,
-        name: Boolean,
         email: Boolean,
-        password: Boolean,
     },
     { timestamps: true }
 );
