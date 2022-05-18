@@ -30,7 +30,6 @@ const verifyUser = async (req, res, next) => {
                 message: "Forbidden access",
             });
         }
-        req.id = decoded?.id;
         req.email = decoded?.email;
         next();
     });
@@ -86,8 +85,11 @@ app.delete("/:id", verifyUser, async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const user = await User.findById(req.decoded.id);
-        if (user.password === req.body.password) {
+        const user = await User.findBy({ email: req.decoded.email });
+        if (
+            user.email === req.body.email &&
+            user.password === req.body.password
+        ) {
             const tempUser = {
                 name: user.name,
                 email: user.email,
