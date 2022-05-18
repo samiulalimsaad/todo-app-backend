@@ -53,6 +53,15 @@ app.patch("/:id", async (req, res) => {
     }
 });
 
+app.delete("/:id", async (req, res) => {
+    try {
+        const todo = await Todo.findByIdAndDelete(req.params.id);
+        res.json({ todo, success: true });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
+
 app.listen(PORT, async () => {
     console.log(`server is running at http://localhost:${PORT}`);
     mongoose.connect(
