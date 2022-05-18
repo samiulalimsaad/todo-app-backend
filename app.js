@@ -32,6 +32,15 @@ app.get("/:id", async (req, res) => {
     }
 });
 
+app.post("/", async (req, res) => {
+    const newTodo = new Todo(req.body);
+    try {
+        const todo = await newTodo.save();
+        res.json({ todo, success: true });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
 
 app.listen(PORT, async () => {
     console.log(`server is running at http://localhost:${PORT}`);
