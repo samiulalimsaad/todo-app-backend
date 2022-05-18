@@ -37,7 +37,7 @@ const verifyUser = async (req, res, next) => {
 
 app.get("/", verifyUser, async (req, res) => {
     try {
-        const allTodo = await Todo.find({ email: req.body.email });
+        const allTodo = await Todo.find({ email: req.decoded.email });
         res.json({ allTodo, success: true });
     } catch (error) {
         res.json({ success: false, error: error.message });
@@ -85,7 +85,7 @@ app.delete("/:id", verifyUser, async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const user = await User.findBy({ email: req.decoded.email });
+        const user = await User.findBy({ email: req.body.email });
         if (
             user.email === req.body.email &&
             user.password === req.body.password
