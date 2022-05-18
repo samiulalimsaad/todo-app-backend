@@ -42,6 +42,17 @@ app.post("/", async (req, res) => {
     }
 });
 
+app.patch("/:id", async (req, res) => {
+    try {
+        const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+        });
+        res.json({ todo, success: true });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
+
 app.listen(PORT, async () => {
     console.log(`server is running at http://localhost:${PORT}`);
     mongoose.connect(
