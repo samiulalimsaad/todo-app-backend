@@ -37,7 +37,7 @@ const verifyUser = async (req, res, next) => {
 
 app.get("/", verifyUser, async (req, res) => {
     try {
-        const allTodo = await Todo.find({ email: req.decoded.email });
+        const allTodo = await Todo.find({ email: req.body.email });
         res.json({ allTodo, success: true });
     } catch (error) {
         res.json({ success: false, error: error.message });
