@@ -54,7 +54,7 @@ app.get("/:id", verifyUser, async (req, res) => {
 });
 
 app.post("/", verifyUser, async (req, res) => {
-    const newTodo = new Todo(req.body);
+    const newTodo = new Todo({ ...req.body, email: req.email, done: false });
     try {
         const todo = await newTodo.save();
         res.json({ todo, success: true });
