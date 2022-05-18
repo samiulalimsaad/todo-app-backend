@@ -1,8 +1,10 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { Todo } from "./Models/todo.model.jsodel.js";
+import { Todo } from "./Models/todo.model.js";
+import { User } from "./Models/user.model.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,21 +30,22 @@ const verifyUser = async (req, res, next) => {
                 message: "Forbidden access",
             });
         }
+        req.id = decoded?.id;
         req.email = decoded?.email;
         next();
     });
 };
 
-app.get("/", async (req, res) => {
+app.get("/", verifyUser, async (req, res) => {
     try {
-        const allTodo = await Todo.find({});
+        const allTodo = await Todo.find({ email: req.decoded.email });
         res.json({ allTodo, success: true });
     } catch (error) {
         res.json({ success: false, error: error.message });
     }
 });
 
-app.get("/:id", async (req, res) => {
+app.get("/:id", verifyUser, async (req, res) => {
     try {
         const allTodo = await Todo.findById({ _id: req.params.id || "" });
         res.json({ allTodo, success: true });
@@ -51,7 +54,7 @@ app.get("/:id", async (req, res) => {
     }
 });
 
-app.post("/", async (req, res) => {
+app.post("/", verifyUser, async (req, res) => {
     const newTodo = new Todo(req.body);
     try {
         const todo = await newTodo.save();
@@ -61,7 +64,7 @@ app.post("/", async (req, res) => {
     }
 });
 
-app.patch("/:id", async (req, res) => {
+app.patch("/:id", verifyUser, async (req, res) => {
     try {
         const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
@@ -72,7 +75,7 @@ app.patch("/:id", async (req, res) => {
     }
 });
 
-app.delete("/:id", async (req, res) => {
+app.delete("/:id", verifyUser, async (req, res) => {
     try {
         const todo = await Todo.findByIdAndDelete(req.params.id);
         res.json({ todo, success: true });
@@ -82,16 +85,51 @@ app.delete("/:id", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-    const token = jwt.sign(req.body, process.env.ACCESS_TOKEN, {
-        expiresIn: "1d",
-    });
-    res.json({
-        token,
-        success: true,
-    });
+    try {
+        const user = await User.findById(req.decoded.id);
+        if (user.password === req.body.password) {
+            const tempUser = {
+                name: user.name,
+                email: user.email,
+            };
+
+            const token = jwt.sign(tempUser, process.env.ACCESS_TOKEN, {
+                expiresIn: "1d",
+            });
+            res.json({
+                token,
+                success: true,
+            });
+        } else {
+            res.json({ success: false, error: "invalid credential!" });
+        }
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
 });
 
+app.post("/signup", async (req, res) => {
+    const newUser = new User(req.body);
 
+    try {
+        const user = await newUser.save();
+        const tempUser = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+        };
+
+        const token = jwt.sign(tempUser, process.env.ACCESS_TOKEN, {
+            expiresIn: "1d",
+        });
+        res.json({
+            token,
+            success: true,
+        });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
+    }
+});
 
 app.listen(PORT, async () => {
     console.log(`server is running at http://localhost:${PORT}`);
